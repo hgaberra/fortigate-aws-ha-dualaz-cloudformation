@@ -193,7 +193,7 @@
 		"InstanceType": {
 			"Type": "String",
 			"Default": "c5.xlarge",
-			"Description": "Select the instance type for the FortiGates",
+			"Description": "Select the instance type for the FortiGates. *** FortiOS 6.x requires c5.xlarge or higher to support 4 interfaces.  FortiOS 7.x can use smaller instances as only 3 interfaces will be used. ***",
 			"AllowedValues": [
 				"c5.large",
 				"c5.xlarge",
