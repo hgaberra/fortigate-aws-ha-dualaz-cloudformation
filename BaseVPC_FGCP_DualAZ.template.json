@@ -18,7 +18,7 @@
 						"PublicSubnet2",
 						"PrivateSubnet2",
 						"HAMgmtSubnet2",
-						"TgwAttachSubnets",
+						"TgwAttach",
 						"TgwAttachSubnet1",
 						"TgwAttachSubnet2"
 					]
@@ -70,7 +70,7 @@
 			"Default": "10.0.30.0/24",
 			"Description": "Provide a network CIDR for HAMgmtSubnet2"
 		},
-		"TgwAttachSubnets": {
+		"TgwAttach": {
 			"Type": "String",
 			"Description": "Select Yes if you plan to attach this VPC to Transit GW with a VPC attachment.  If Yes is selected 2 additional subnets and a route table will be created",
 			"Default": "No",
@@ -82,19 +82,19 @@
 		"TgwAttachSubnet1": {
 			"Type": "String",
 			"Default": "10.0.4.0/24",
-			"Description": "Provide a network CIDR for TgwAttachSubnet1"
+			"Description": "[Ignore if TgwAttach is No] Provide a network CIDR for TgwAttachSubnet1"
 		},
 		"TgwAttachSubnet2": {
 			"Type": "String",
 			"Default": "10.0.40.0/24",
-			"Description": "Provide a network CIDR for TgwAttachSubnet2"
+			"Description": "[Ignore if TgwAttach is No] Provide a network CIDR for TgwAttachSubnet2"
 		}
 	},
 	"Conditions": {
 		"CreateTgwAttachSubnets": {
 			"Fn::Equals": [
 				{
-					"Ref": "TgwAttachSubnets"
+					"Ref": "TgwAttach"
 				},
 				"Yes"
 			]
