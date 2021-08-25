@@ -35,7 +35,7 @@ A FortiGate FGCP cluster appears as a single logical FortiGate instance and conf
 
 The FortiGate instances will use multiple interfaces for data plane and control plane traffic to achieve FGCP clustering in an AWS VPC.  The FortiGate instances require four ENIs for this solution to work as designed so make sure to use an AWS EC2 instance type that supports this.   Reference AWS Documentation for further information on this.
 
-For data plane functions the FortiGates will use two dedicated ENIs, one for a public interface (ie ENI0\port1) and another for a private interface (ie ENI1\port2).  These ENIs will utilize primary IP addressing and FortiOS should not sync the interface configuration (config system interface) or static routes (config router static) as these FGTs are in seperate subnets.  This is controlled via the CLI (config system vdom-exception). Thus when configuring these items, you should do so individually on both FortiGates.
+For data plane functions the FortiGates will use two dedicated ENIs, one for a public interface (ie ENI0\port1) and another for a private interface (ie ENI1\port2).  These ENIs will utilize primary IP addressing and FortiOS should not sync the interface configuration (config system interface) or static routes (config router static) as these FGTs are in separate subnets.  This is controlled via the CLI (config system vdom-exception). Thus when configuring these items, you should do so individually on both FortiGates.
 
 A cluster EIP will be associated to the primary IP of the public interface (ie ENI0\port1) of the current master FortiGate instance and will be reassociated to a new master FortiGate instance as well.
 
@@ -107,7 +107,7 @@ FortiOS will assume IAM permissions to access the AWS EC2 API by using the IAM i
 
 The FortiGate instances will utilize their independent and direct internet access available through the FGCP HA management interface (ie ENI2\port3) to access the public AWS EC2 API.  It is critical that this ENI is in a public subnet with an EIP assigned so that each instance has independent and direct access to the internet or the AWS SDN will not reference the current master FortiGate instance which will break data plane traffic.
 
-For further details on FGCP and it's components, reference the High Availability chapter in the FortiOS Handbook on the [Fortinet Documentation site](https://docs.fortinet.com).
+For further details on FGCP and its components, reference the High Availability chapter in the FortiOS Handbook on the [Fortinet Documentation site](https://docs.fortinet.com).
 
 ## Failover Process
 The following network diagram will be used to illustrate a failover event from the current master FortiGate (FortiGate 1), to the current slave FortiGate (FortiGate 2).
@@ -142,7 +142,7 @@ In this section the parameters will request general information for existing VPC
 ![Example Diagram](./content/params2.png)
 
 ### FortiGate Instance Configuration
-For this section the variables will request general instance information such as instance type and key pair to use for deploying the instances.  Also FortiOS specific information will be requested such as if an S3 endpoint should be deployed, init S3 bucket, and FortiGate License filenames.  **Ensure that an S3 gateway endpoint is deployed and assigned to the PublicSubnet's AWS route table or bootstrapping will fail.** Additional items such as the IP addresses for AWS resources within the VPC such as the IP of the AWS intrinsic router for the public, private, and HAmgmt subnets.  The AWS intrinsic router is always the first host IP for each subnet.  Reference [AWS Documentation](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html#VPC_Sizing) for further information on host IPs used by AWS services within a subnet.
+For this section the variables will request general instance information such as instance type and key pair to use for deploying the instances.  Also, FortiOS specific information will be requested such as if an S3 endpoint should be deployed, init S3 bucket, FortiOS version, and FortiGate License filenames.  **Ensure that an S3 gateway endpoint is deployed and assigned to the PublicSubnet's AWS route table or bootstrapping will fail.** Additional items such as the IP addresses for AWS resources within the VPC such as the IP of the AWS intrinsic router for the public, private, and HAmgmt subnets.  The AWS intrinsic router is always the first host IP for each subnet.  Reference [AWS Documentation](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html#VPC_Sizing) for further information on host IPs used by AWS services within a subnet.
 
 ![Example Diagram](./content/params3a.png)
 ![Example Diagram](./content/params3b.png)
@@ -160,7 +160,7 @@ Before attempting to create a stack with the templates, a few prerequisites shou
   * [PAYG Marketplace Listing](https://aws.amazon.com/marketplace/pp/B00PCZSWDA)
 2.	The solution requires 3 EIPs to be created so ensure the AWS region being used has available capacity.  Reference [AWS Documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html) for more information on EC2 resource limits and how to request increases.
 3.	If BYOL licensing is to be used, ensure these licenses have been registered on the support site.  Reference the VM license registration process PDF in this [KB Article](http://kb.fortinet.com/kb/microsites/search.do?cmd=displayKC&docType=kc&externalId=FD32312).
-4.   **Create a new S3 bucket in the same region where the template will be deployed.  If the bucket is in a different region than the template deployment, bootstrapping will fail and the FGTs will be unaccessable**.
+4.   **Create a new S3 bucket in the same region where the template will be deployed.  If the bucket is in a different region than the template deployment, bootstrapping will fail and the FGTs will be inaccessible**.
 5.  If BYOL licensing is to be used, upload these licenses to the root directory of the same S3 bucket from the step above.
 6.  **Ensure that an S3 gateway endpoint is deployed and assigned to both of the PublicSubnet's AWS route table.**  If you are using the 'BaseVPC_FGCP_DualAZ.template.json' template, then this is already deployed for you.  Reference [AWS Documentation](https://docs.aws.amazon.com/vpc/latest/userguide/vpce-gateway.html#create-gateway-endpoint) for further information.
 7.  **Ensure that all of the PublicSubnet's and HAmgmtSubnet's AWS route tables have a default route to an AWS Internet Gateway.**  Reference [AWS Documentation](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html#route-tables-internet-gateway) for further information.
@@ -305,9 +305,9 @@ diag test app awsd 4
 
   - **Is it possible to remove direct internet access from the HAmgmt subnet and provide private AWS EC2 API access via a VPC interface endpoint?**
 
-Yes.  However there are a few caveats to consider.
+Yes.  However, there are a few caveats to consider.
 
-First, a dedicated method of access to the FortiGate instances needs to be setup to allow dedicated access to the HAmgmt interfaces.  This method of access should not use the master FortiGate instance so that either instance can be accessed regardless of the cluster status.  Examples of dedicated access are Direct connect or IPsec VPN connections to an attached AWS VPN Gateway.  Reference [AWS Documentation](https://docs.aws.amazon.com/vpc/latest/userguide/SetUpVPNConnections.html) for further information.
+First, a dedicated method of access to the FortiGate instances needs to be setup to allow dedicated access to the HAmgmt interfaces.  This method of access should not use the master FortiGate instance so that either instance can be accessed regardless of the cluster status.  Examples of dedicated access are Direct Connect or IPsec VPN connections to an attached AWS VPN Gateway.  Reference [AWS Documentation](https://docs.aws.amazon.com/vpc/latest/userguide/SetUpVPNConnections.html) for further information.
 
 Second, the FortiGates should be configured to use the ‘169.254.169.253’ IP address for the AWS intrinsic DNS server as the primary DNS server to allow proper resolution of AWS API hostnames during failover to a new master FortiGate.  Here is an example of how to configure this with CLI commands:
 ```
@@ -316,4 +316,4 @@ set primary 169.254.169.253
 end
 ```
 
-Finally, the VPC interface endpoint needs to be deployed into both of the HAmgmt subnets and must also  have ‘Private DNS’ enabled to allow DNS resolution of the default AWS EC2 API public hostname to the private IP address of the VPC endpoint.  This means that the VPC also needs to have both DNS resolution and hostname options enabled as well.  Reference [AWS Documentation](https://docs.aws.amazon.com/vpc/latest/userguide/vpce-interface.html#vpce-private-dns) for further information.
+Finally, the VPC interface endpoint needs to be deployed into both of the HAmgmt subnets and must also have ‘Private DNS’ enabled to allow DNS resolution of the default AWS EC2 API public hostname to the private IP address of the VPC endpoint.  This means that the VPC also needs to have both DNS resolution and hostname options enabled as well.  Reference [AWS Documentation](https://docs.aws.amazon.com/vpc/latest/userguide/vpce-interface.html#vpce-private-dns) for further information.
