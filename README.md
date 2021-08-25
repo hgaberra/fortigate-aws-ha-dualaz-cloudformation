@@ -144,7 +144,8 @@ In this section the parameters will request general information for existing VPC
 ### FortiGate Instance Configuration
 For this section the variables will request general instance information such as instance type and key pair to use for deploying the instances.  Also FortiOS specific information will be requested such as if an S3 endpoint should be deployed, init S3 bucket, and FortiGate License filenames.  **Ensure that an S3 gateway endpoint is deployed and assigned to the PublicSubnet's AWS route table or bootstrapping will fail.** Additional items such as the IP addresses for AWS resources within the VPC such as the IP of the AWS intrinsic router for the public, private, and HAmgmt subnets.  The AWS intrinsic router is always the first host IP for each subnet.  Reference [AWS Documentation](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Subnets.html#VPC_Sizing) for further information on host IPs used by AWS services within a subnet.
 
-![Example Diagram](./content/params3.png)
+![Example Diagram](./content/params3a.png)
+![Example Diagram](./content/params3b.png)
 
 ### Interface IP Configuration for FortiGate 1 & 2
 The next two sections request IP addressing information to configure the primary IP addresses of ENIs of the FortiGate instances.  This information will also be used to bootstrap the configuration for both FortiGates.
