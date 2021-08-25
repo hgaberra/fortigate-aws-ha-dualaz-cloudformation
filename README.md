@@ -69,7 +69,7 @@ The FortiGates are configured to use the unicast version of FGCP by applying the
     set override disable
     set priority 255
     set unicast-hb enable
-    set unicast-hb-peerip 10.0.30.7
+    set unicast-hb-peerip 10.0.30.10
     end
 
 #### Example Slave FGCP Configuration:
@@ -96,7 +96,7 @@ The FortiGates are configured to use the unicast version of FGCP by applying the
     set override disable
     set priority 1
     set unicast-hb enable
-    set unicast-hb-peerip 10.0.3.7
+    set unicast-hb-peerip 10.0.3.10
     end
 
 The FortiGate instances will make calls to the public AWS EC2 API to update AWS SDN to failover both inbound and outbound traffic flows to the new master FortiGate instance.  There are a few components that make this possible.
@@ -186,75 +186,73 @@ Once the prerequisites have been satisfied, login to your account in the AWS con
 5.  In the FortiGate Instance Configuration parameters section, we have selected an Instance Type and Key Pair to use for the FortiGates as well as BYOL licensing.  Notice we are prompted for if an S3 endpoint should be deployed, the InitS3Bucket, License Types, FortiGate1LicenseFile, and FortiGate2LicenseFile parameters.  For the values we are going to reference the S3 bucket and relevant information from the deployment prerequisite step 4.
 
 ![Example Diagram](./content/deploy5.png)
+![Example Diagram](./content/deploy6.png)
 
 6.  In the Interface IP Configuration for the FortiGates parameters section, we are going with the defaults in this example as the subnet addressing matches.  These IPs will be the primary IPs assigned to the FortiGate ENIs.  These values will also be used as the static IPs in the FortiOS configuration for both FortiGates.
 
-![Example Diagram](./content/deploy6.png)
+![Example Diagram](./content/deploy7.png)
 
 7.  On the Options page, you can scroll to the bottom and select Next.
-8.  On the Review page, confirm that the stack name and parameters are correct.  This is what the parameters look like in this example.  Notice the parameter values for the init S3 bucket and FortiGate License filenames.
 
-![Example Diagram](./content/deploy8.png)
-
-9.  On the Review page, scroll down to the capabilities section.  As the template will create IAM resources, you need to acknowledge this by checking the box next to ‘I acknowledge that AWS CloudFormation might create IAM resources’ and then click Create.
+8.  On the Review page, scroll down to the capabilities section.  As the template will create IAM resources, you need to acknowledge this by checking the box next to ‘I acknowledge that AWS CloudFormation might create IAM resources’ and then click Create.
 
 ![Example Diagram](./content/deploy9.png)
 
-10.  On the main AWS CloudFormation console, you will now see your stack being created.  You can monitor the progress by selecting your stack and then select the Events tab.
+9.  On the main AWS CloudFormation console, you will now see your stack being created.  You can monitor the progress by selecting your stack and then select the Events tab.
 
 ![Example Diagram](./content/deploy10.png)
 
-11.  Once the stack creation has completed successfully, select the Outputs tab to get the login information for the FortiGate instances and cluster.
+10.  Once the stack creation has completed successfully, select the Outputs tab to get the login information for the FortiGate instances and cluster.
 
 ![Example Diagram](./content/deploy11.png)
 
-12.  Using the login information in the stack outputs, login to the master FortiGate instance with the ClusterLoginURL.  This should put you on FortiGate 1.  You will also be prompted to change the initial password for the admin account.
+11.  Using the login information in the stack outputs, login to the master FortiGate instance with the ClusterLoginURL.  This should put you on FortiGate 1.  You will also be prompted to change the initial password for the admin account.
 
 ![Example Diagram](./content/deploy13.png)
 
-13.  Navigate to the HA status page on the master FortiGate by going to System > HA.  Now you should see both FortiGate 1 and FortiGate 2 in the cluster with FortiGate 2 as the current slave.
+12.  Navigate to the HA status page on the master FortiGate by going to System > HA.  Now you should see both FortiGate 1 and FortiGate 2 in the cluster with FortiGate 2 as the current slave.
 
 ![Example Diagram](./content/deploy14.png)
 
-14.  Give the HA cluster time to finish synchronizing their configuration and update files.  You can confirm that both the master and slave FortiGates are in sync by looking at the Status column and confirming there is a green check next to both FortiGates and the status is Synchronized.
+13.  Give the HA cluster time to finish synchronizing their configuration and update files.  You can confirm that both the master and slave FortiGates are in sync by looking at the Status column and confirming there is a green check next to both FortiGates and the status is Synchronized.
 
 *** **Note:** Due to browser caching issues, the icon for Synchronization status may not update properly after the cluster is in-sync.  So either close your browser and log back into the cluster or alternatively verify the HA config sync status with the CLI command ‘get system ha status’. ***
 
 ![Example Diagram](./content/deploy15.png)
 
-15.  Navigate to the AWS EC2 console and reference the instance Detail tab for FortiGate 1.  Notice the primary IPs assigned to the instance ENIs as well as the 2 EIPs associated to the instance, the Cluster EIP and the HAmgmt EIP.
+14.  Navigate to the AWS EC2 console and reference the instance Detail tab for FortiGate 1.  Notice the primary IPs assigned to the instance ENIs as well as the 2 EIPs associated to the instance, the Cluster EIP and the HAmgmt EIP.
 
 ![Example Diagram](./content/deploy16.png)
 
-16.  Now reference the instance Detail tab for FortiGate 2.  Notice the primary IPs assigned to the instance ENIs and only one EIP is the HAmgmt EIP.
+15.  Now reference the instance Detail tab for FortiGate 2.  Notice the primary IPs assigned to the instance ENIs and only one EIP is the HAmgmt EIP.
 
 ![Example Diagram](./content/deploy17.png)
 
-17.  Navigate to the AWS VPC console and create a default route in the default route table with a next hop targeting ENI1\port2 of FortiGate 1 which is the current master.
+16.  Navigate to the AWS VPC console and create a default route in the default route table with a next hop targeting ENI1\port2 of FortiGate 1 which is the current master.
 
 ![Example Diagram](./content/deploy18.png)
 
-18.  Navigate back to the AWS EC2 console and reference the instance Detail tab for FortiGate 1.  Now shutdown FortiGate 1 via the EC2 console and refresh the page after a few seconds.  Notice that the Cluster EIP is no longer assigned to FortiGate 1.
+17.  Navigate back to the AWS EC2 console and reference the instance Detail tab for FortiGate 1.  Now shutdown FortiGate 1 via the EC2 console and refresh the page after a few seconds.  Notice that the Cluster EIP is no longer assigned to FortiGate 1.
 
 ![Example Diagram](./content/deploy19.png)
 
-19.  Now reference the instance Detail tab for FortiGate 2.  Notice that the Cluster EIP is now associated to FortiGate 2.
+18.  Now reference the instance Detail tab for FortiGate 2.  Notice that the Cluster EIP is now associated to FortiGate 2.
 
 ![Example Diagram](./content/deploy20.png)
 
-20.  Navigate back to the AWS VPC console and look at the routes for the default route table.  The default route target is now pointing to ENI1\port2 of FortiGate 2.
+19.  Navigate back to the AWS VPC console and look at the routes for the default route table.  The default route target is now pointing to ENI1\port2 of FortiGate 2.
 
 ![Example Diagram](./content/deploy21.png)
 
-21.  Now log back into the cluster_login_url and you will be placed on the current master FortiGate, which should now be FortiGate 2.
+20.  Now log back into the cluster_login_url and you will be placed on the current master FortiGate, which should now be FortiGate 2.
 
 ![Example Diagram](./content/deploy22.png)
 
-22.  Now power on FortiGate 1 and confirm that it joins the cluster successfully as the slave and FortiGate 2 continues to be the master FortiGate.
+21.  Now power on FortiGate 1 and confirm that it joins the cluster successfully as the slave and FortiGate 2 continues to be the master FortiGate.
 
 ![Example Diagram](./content/deploy23.png)
 
-23.  This concludes the template deployment example.
+22.  This concludes the template deployment example.
 ----
 
 ## FAQ \ Troubleshoot
