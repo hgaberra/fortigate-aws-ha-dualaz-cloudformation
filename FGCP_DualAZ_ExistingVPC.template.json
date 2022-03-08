@@ -1,6 +1,6 @@
 {
 	"AWSTemplateFormatVersion": "2010-09-09",
-	"Description": "(v7.2) AWS CFT to deploy a FGCP based Active-Passive HA solution with two FortiGates in two AZs",
+	"Description": "(v7.8) AWS CFT to deploy a FGCP based Active-Passive HA solution with two FortiGates in two AZs",
 	"Metadata": {
 		"AWS::CloudFormation::Interface": {
 			"ParameterGroups": [
@@ -201,11 +201,19 @@
 				"c5.4xlarge",
 				"c5.9xlarge",
 				"c5.18xlarge",
+				"c5n.large",
 				"c5n.xlarge",
 				"c5n.2xlarge",
 				"c5n.4xlarge",
 				"c5n.9xlarge",
-				"c5n.18xlarge"
+				"c5n.18xlarge",
+				"c6i.large",
+				"c6i.xlarge",
+				"c6i.2xlarge",
+				"c6i.4xlarge",
+				"c6i.8xlarge",
+				"c6i.16xlarge",
+				"c6i.24xlarge"
 			]
 		},
 		"CIDRForInstanceAccess": {
@@ -244,12 +252,12 @@
 		},
 		"FortiOSVersion": {
 			"Type": "String",
-			"Default": "6.4.x",
+			"Default": "7.0.x",
 			"Description": "Select the verion of FortiOS to use (latest GA AMI will be used)",
 			"AllowedValues": [
-				"6.2.x",
 				"6.4.x",
-				"7.0.x"
+				"7.0.x",
+				"7.2.x"
 			]
 		},
 		"LicenseType": {
@@ -271,10 +279,6 @@
 	},
 	"Mappings": {
 		"FortiOSAMISearchString": {
-			"6.2.x": {
-				"BYOL": "FortiGate-VM64-AWS *(6.2.*)*",
-				"PAYG": "FortiGate-VM64-AWSONDEMAND *(6.2.*)*"
-			},
 			"6.4.x": {
 				"BYOL": "FortiGate-VM64-AWS *(6.4.*)*",
 				"PAYG": "FortiGate-VM64-AWSONDEMAND *(6.4.*)*"
@@ -282,6 +286,10 @@
 			"7.0.x": {
 				"BYOL": "FortiGate-VM64-AWS *(7.0.*)*",
 				"PAYG": "FortiGate-VM64-AWSONDEMAND *(7.0.*)*"
+			},
+			"7.2.x": {
+				"BYOL": "FortiGate-VM64-AWS *(7.2.*)*",
+				"PAYG": "FortiGate-VM64-AWSONDEMAND *(7.2.*)*"
 			}
 		}
 	},
@@ -383,20 +391,33 @@
 							"Version": "2012-10-17",
 							"Statement": [
 								{
+									"Sid": "BootStrapFromS3",
+									"Effect": "Allow",
+									"Action": [
+										"s3:GetObject"
+									],
+									"Resource": "*"
+								},
+								{
+									"Sid": "Failover",
 									"Effect": "Allow",
 									"Action": [
 										"ec2:DescribeInstances",
 										"ec2:DescribeRouteTables",
 										"ec2:DescribeAddresses",
 										"ec2:AssociateAddress",
-										"ec2:AssignPrivateIpAddresses",
-										"ec2:UnassignPrivateIpAddresses",
-										"ec2:ReplaceRoute",
+										"ec2:ReplaceRoute"
+									],
+									"Resource": "*"
+								},
+								{
+									"Sid": "SDNConnectorFortiView",
+									"Effect": "Allow",
+									"Action": [
 										"eks:DescribeCluster",
 										"eks:ListClusters",
 										"inspector:DescribeFindings",
-										"inspector:ListFindings",
-										"s3:GetObject"
+										"inspector:ListFindings"
 									],
 									"Resource": "*"
 								}
@@ -1484,7 +1505,7 @@
 								"        )",
 								"    except Exception as error:",
 								"        logger.error('<--!! Exception: {}'.format(error))",
-								"        responseData = {'msg':'error'}",
+								"        responseData = {'msg':'Exception: {}'.format(error)}",
 								"        cfnresponse.send(event, context, cfnresponse.FAILED, responseData)",
 								"",
 								"    if resp['ResponseMetadata']['HTTPStatusCode'] == 200 and resp['Images'] != []:",
@@ -1498,8 +1519,8 @@
 								"        responseData = {'ami': ami_dict[ami_list[0]]}",
 								"        cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)",
 								"    else:",
-								"        logger.error('!!--> Unable to find AMI in response! {}'.format(resp))",
-								"        responseData = {'msg':'error'}",
+								"        logger.error('!!--> Unable to find AMI {} in describe_images response! {}'.format(event['ResourceProperties']['LicenseType'],resp))",
+								"        responseData = {'msg':'Unable to find AMI {} in describe_images response! {}'.format(event['ResourceProperties']['LicenseType'],resp)}",
 								"        cfnresponse.send(event, context, cfnresponse.FAILED, responseData)",
 								""
 							]
