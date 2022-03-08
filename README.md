@@ -317,3 +317,67 @@ end
 ```
 
 Finally, the VPC interface endpoint needs to be deployed into both of the HAmgmt subnets and must also have ‘Private DNS’ enabled to allow DNS resolution of the default AWS EC2 API public hostname to the private IP address of the VPC endpoint.  This means that the VPC also needs to have both DNS resolution and hostname options enabled as well.  Reference [AWS Documentation](https://docs.aws.amazon.com/vpc/latest/userguide/vpce-interface.html#vpce-private-dns) for further information.
+
+  - **Is it possible to further restrict the IAM policy used by the FortiGates to specific resources?**
+
+Yes.  You can use resource definitions like shown below to restrict the actions of 'ec2:ReplaceRoute' and 'ec2:AssociateAddress' to specific VPC route table IDs and a set of interfaces, EIP allocation IDs, and instances.  Reference [AWS Documentation](https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazonec2.html) for further information. 
+
+```
+{
+	"Version": "2012-10-17",
+	"Statement": [{
+			"Sid": "BootStrapFromS3",
+			"Effect": "Allow",
+			"Action": [
+				"s3:GetObject"
+			],
+			"Resource": "*"
+		},
+		{
+			"Sid": "SDNConnectorFortiView",
+			"Effect": "Allow",
+			"Action": [
+				"eks:DescribeCluster",
+				"eks:ListClusters",
+				"inspector:DescribeFindings",
+				"inspector:ListFindings"
+			],
+			"Resource": "*"
+		},
+		{
+			"Sid": "HAGatherInfo",
+			"Effect": "Allow",
+			"Action": [
+				"ec2:DescribeInstances*",
+				"ec2:DescribeRouteTables",
+				"eks:DescribeAddresses"
+			],
+			"Resource": "*"
+		},
+		{
+			"Sid": "FailoverEIPs",
+			"Effect": "Allow",
+			"Action": "ec2:AssociateAddress",
+			"Resource": [
+				"arn:aws:ec2:us-east-2:123456789012:elastic-ip/eipalloc-0dfae290176fc15d9",
+				"arn:aws:ec2:us-east-2:123456789012:network-interface/*",
+				"arn:aws:ec2:us-east-2:123456789012:instance/*"
+			]
+		},
+		{
+			"Sid": "FailoverVPCroutes",
+			"Effect": "Allow",
+			"Action": "ec2:ReplaceRoute",
+			"Resource": "arn:aws:ec2:us-east-2:123456789012:route-table/rtb-0d5d1757917c71c6e"
+		}
+	]
+}
+```
+
+  - **Is it possible to restrict the instance metadata service (IMDS) version to v2 only?**
+
+Yes.  Starting in FortiOS 6.4.3 GA, you can modify this via the AWS CLI command 'aws ec2 modify-instance-metadata-options' to set '--http tokens' to required.  This disables the v1 version of the IMDS for that instance.  Reference [AWS Documentation](https://docs.aws.amazon.com/cli/latest/reference/ec2/modify-instance-metadata-options.html) for further information.
+
+```
+aws ec2 modify-instance-metadata-options --instance-id i-01234567890123456 --http-tokens required --region us-west-2
+```
