@@ -2,7 +2,7 @@
 
 For detailed documentation on FGCP in AWS, how to use these templates, walk through of a deployment, and additional use cases, please reference [FGCP-in-AWS](https://fortinetcloudcse.github.io/FGCP-in-AWS).
 
-For a quickstart guide on how to use the templates in this repo, please reference [fortigate-aws-ha-dualaz-cloudformation](https://fortinetcloudcse.github.io/fortigate-aws-ha-dualaz-cloudformation/). 
+For a quick start guide on how to use the templates in this repo, please reference [fortigate-aws-ha-dualaz-cloudformation](https://fortinetcloudcse.github.io/fortigate-aws-ha-dualaz-cloudformation/). 
 
 ## Support
 
