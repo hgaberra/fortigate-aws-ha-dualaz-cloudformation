@@ -10,5 +10,4 @@ Fortinet-provided scripts in this and other GitHub projects do not fall under th
 
 For direct issues, please refer to the [Issues](https://github.com/hgaberra/fortigate-aws-ha-dualaz-cloudformation/issues) tab of this GitHub project.
 
-For other questions related to this project, contact [awssales@fortinet.com]
-(mailto:awssales@fortinet.com).
+For other questions related to this project, contact [awssales@fortinet.com](mailto:awssales@fortinet.com).
